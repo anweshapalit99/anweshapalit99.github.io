@@ -1,7 +1,7 @@
 {
   "name": "quiz-app",
-  "homepage" : "https://anweshapalit99.github.io/",
-  "version": "1.0.0",
+  "homepage": "https://anweshapalit99.github.io/",
+  "version": "1.1.0",
   "author": "anweshap99",
   "scripts": {
     "dev": "webpack-dev-server --open",
