@@ -1,12 +1,12 @@
 import { LitElement, html, css } from "lit-element/lit-element.js";
-import {classMap} from 'lit/directives/class-map.js';
+import { classMap } from "lit/directives/class-map.js";
 import "./checkmark";
 
 export class Quiz extends LitElement {
   static properties = {
     list: { type: Array },
     shouldDisplay: { type: Boolean },
-    score : { type: Number},
+    score: { type: Number },
     errorStatus: { type: String },
     loadingStatus: { type: String },
   };
@@ -52,7 +52,7 @@ export class Quiz extends LitElement {
       position: absolute;
       padding-left: 5px;
     }
-    .scoreCard{
+    .scoreCard {
       background-color: rgb(173, 217, 178);
       border-radius: 10px;
       border: 1px solid #999;
@@ -61,7 +61,7 @@ export class Quiz extends LitElement {
       margin: 15px 0px;
       padding: 10px;
     }
-    .scoreCard >*{
+    .scoreCard > * {
       flex: 50%;
     }
     .form-footer {
@@ -88,9 +88,9 @@ export class Quiz extends LitElement {
       padding: 10px;
       margin: 15px 0px;
       max-width: 700px;
-      width:100%;
+      width: 100%;
     }
-    .displayNone{
+    .displayNone {
       display: none;
     }
     /* MOBILE VIEW */
@@ -98,7 +98,7 @@ export class Quiz extends LitElement {
       .btn {
         flex: 1;
       }
-      .scoreCard >*{
+      .scoreCard > * {
         flex: 100%;
       }
     }
@@ -122,11 +122,10 @@ export class Quiz extends LitElement {
 
   disconnectedCallback() {
     super.disconnectedCallback();
-
   }
 
   async load() {
-    try{
+    try {
       const response = await fetch(
         "https://quizapi.io/api/v1/questions?apiKey=Vmfq8kfLHvop8aUed6mqDFd8eNAvJy7k1qXy66p2&category=Code&limit=10&tags=HTML"
       );
@@ -136,121 +135,163 @@ export class Quiz extends LitElement {
       }
       const data = await response.json();
       this.list = data;
-    }
-    catch(error){
+    } catch (error) {
       this.errorStatus = error.message;
     }
-    this.loadingStatus=""
+    this.loadingStatus = "";
   }
 
-  handleChange = (e,isCorrect) => {
-    if(isCorrect === "true"){
-      return this.score +=1;
+  handleChange = (isCorrect) => {
+    if (isCorrect === "true") {
+      return (this.score += 1);
     }
-    console.log(e.target)
-  }
+  };
 
   pageReload = (e) => {
     e.preventDefault();
-    window.location.reload()
+    window.location.reload();
   };
 
-  submit = e => {
+  submit = (e) => {
     e.preventDefault();
     this.shouldDisplay = true;
-  }
+  };
 
   // Render the UI as a function of component state
   render() {
     const scoreBoardClass = {
       scoreCard: this.shouldDisplay,
-      displayNone : !this.shouldDisplay
+      displayNone: !this.shouldDisplay,
     };
     const checkmarkClass = {
-      displayNone : !this.shouldDisplay
-    }
-    return html`
-      ${this.loadingStatus || this.errorStatus ? html`
+      displayNone: !this.shouldDisplay,
+    };
+    return html` ${this.loadingStatus || this.errorStatus
+        ? html` <section>
+            <p>${this.loadingStatus}</p>
+            <p>${this.errorStatus}</p>
+          </section>`
+        : ""}
       <section>
-        <p>${this.loadingStatus}</p>
-        <p>${this.errorStatus}</p>
-      </section>`: ''}
-      <section>
-          <form action="#">
+        <form action="#">
           <div class=${classMap(scoreBoardClass)}>
             <p>Your score is ${this.score} out of 10 !</p>
-            <button class="btn" @click=${(e)=>this.pageReload(e)}>Click here to try again!</button>
+            <button class="btn" @click=${(e) => this.pageReload(e)}>
+              Click here to try again!
+            </button>
           </div>
           <fieldset ?disabled=${this.shouldDisplay}>
-          <ul>
-            ${this.list &&
-            this.list.map((item, index) => {
-              return html`
-                <li id=li${index}_1>
-                  <p>${index + 1}. ${item.question}</p>
-                  ${item.answers.answer_a ? (html`
-                  <label for=${index}_1>
-                    <input
-                      type="radio"
-                      id=${index}_1
-                      name=${item.question}
-                      value=${item.answers.answer_a}
-                      @click="${(e)=> this.handleChange(e,item.correct_answers.answer_a_correct)}"
-                    />
-                    ${item.answers.answer_a}
-                    ${item.correct_answers.answer_a_correct === "true"
-                      ? html` <check-mark class=${classMap(checkmarkClass)}></check-mark> `
+            <ul>
+              ${this.list &&
+              this.list.map((item, index) => {
+                return html`
+                  <li id="li${index}_1">
+                    <p>${index + 1}. ${item.question}</p>
+                    ${item.answers.answer_a
+                      ? html` <label for="${index}_1">
+                          <input
+                            type="radio"
+                            id="${index}_1"
+                            name=${item.question}
+                            value=${item.answers.answer_a}
+                            @click="${() =>
+                              this.handleChange(
+                                item.correct_answers.answer_a_correct
+                              )}"
+                          />
+                          ${item.answers.answer_a}
+                          ${item.correct_answers.answer_a_correct === "true"
+                            ? html`
+                                <check-mark
+                                  class=${classMap(checkmarkClass)}
+                                ></check-mark>
+                              `
+                            : ``}
+                        </label>`
                       : ``}
-                  </label>`): ``}
-                  ${item.answers.answer_b ? (html`
-                  <label for=${index}_2>
-                    <input
-                      type="radio"
-                      id=${index}_2
-                      name=${item.question}
-                      value=${item.answers.answer_b}
-                      @click="${(e)=> this.handleChange(e,item.correct_answers.answer_b_correct)}"
-                    />
-                    ${item.answers.answer_b}
-                    ${item.correct_answers.answer_b_correct === "true"
-                      ? html` <check-mark class=${classMap(checkmarkClass)}></check-mark> `
+                    ${item.answers.answer_b
+                      ? html` <label for="${index}_2">
+                          <input
+                            type="radio"
+                            id="${index}_2"
+                            name=${item.question}
+                            value=${item.answers.answer_b}
+                            @click="${(e) =>
+                              this.handleChange(
+                                e,
+                                item.correct_answers.answer_b_correct
+                              )}"
+                          />
+                          ${item.answers.answer_b}
+                          ${item.correct_answers.answer_b_correct === "true"
+                            ? html`
+                                <check-mark
+                                  class=${classMap(checkmarkClass)}
+                                ></check-mark>
+                              `
+                            : ``}
+                        </label>`
                       : ``}
-                  </label>`): ``}
-                  ${item.answers.answer_c ? (html`
-                  <label for=${index}_3>
-                    <input
-                      type="radio"
-                      id=${index}_3
-                      name=${item.question}
-                      value=${item.answers.answer_c}
-                      @click="${(e)=> this.handleChange(e,item.correct_answers.answer_c_correct)}"
-                    />
-                    ${item.answers.answer_c}
-                    ${item.correct_answers.answer_c_correct === "true"
-                      ? html` <check-mark class=${classMap(checkmarkClass)}></check-mark> `
+                    ${item.answers.answer_c
+                      ? html` <label for="${index}_3">
+                          <input
+                            type="radio"
+                            id="${index}_3"
+                            name=${item.question}
+                            value=${item.answers.answer_c}
+                            @click="${(e) =>
+                              this.handleChange(
+                                e,
+                                item.correct_answers.answer_c_correct
+                              )}"
+                          />
+                          ${item.answers.answer_c}
+                          ${item.correct_answers.answer_c_correct === "true"
+                            ? html`
+                                <check-mark
+                                  class=${classMap(checkmarkClass)}
+                                ></check-mark>
+                              `
+                            : ``}
+                        </label>`
                       : ``}
-                  </label>`): ``}
-                  ${item.answers.answer_d ? (html`
-                  <label for=${index}_4>
-                    <input
-                      type="radio"
-                      id=${index}_4
-                      name=${item.question}
-                      value=${item.answers.answer_d}
-                      @click="${(e)=> this.handleChange(e,item.correct_answers.answer_d_correct)}"
-                    />
-                    ${item.answers.answer_d}
-                    ${item.correct_answers.answer_d_correct === "true"
-                      ? html` <check-mark class=${classMap(checkmarkClass)}></check-mark> `
+                    ${item.answers.answer_d
+                      ? html` <label for="${index}_4">
+                          <input
+                            type="radio"
+                            id="${index}_4"
+                            name=${item.question}
+                            value=${item.answers.answer_d}
+                            @click="${(e) =>
+                              this.handleChange(
+                                e,
+                                item.correct_answers.answer_d_correct
+                              )}"
+                          />
+                          ${item.answers.answer_d}
+                          ${item.correct_answers.answer_d_correct === "true"
+                            ? html`
+                                <check-mark
+                                  class=${classMap(checkmarkClass)}
+                                ></check-mark>
+                              `
+                            : ``}
+                        </label>`
                       : ``}
-                  </label>`): ``}
-                </li>
-              `;
-            })}
-          </ul>
+                  </li>
+                `;
+              })}
+            </ul>
           </fieldset>
           <div class="form-footer">
-            <button class="btn" type="submit" value="Submit" @click="${(e) => this.submit(e)}">Submit</button>
+            <button
+              class="btn"
+              type="submit"
+              value="Submit"
+              @click="${(e) => this.submit(e)}"
+            >
+              Submit
+            </button>
           </div>
         </form>
       </section>`;
